@@ -13,7 +13,7 @@ dotnet_diagnostic.CA1822.severity = none
 dotnet_diagnostic.SA1313.severity = none
 
 # CA1040: Avoid empty interfaces
-dotnet_diagnostic.CA1040.severity = warning
+dotnet_diagnostic.CA1040.severity = none
 
 # CA1056: Uri properties should not be strings
 dotnet_diagnostic.CA1056.severity = none
