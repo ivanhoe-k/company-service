@@ -1,0 +1,29 @@
+name: Run Unit Tests
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  unit-tests:
+    name: Run Backend Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore backend/CompanyService.sln
+
+      - name: Build solution
+        run: dotnet build backend/CompanyService.sln --configuration Release --no-restore
+
+      - name: Run backend unit tests
+        run: dotnet test backend/CompanyService.Tests/CompanyService.Tests.csproj --configuration Release --no-build --verbosity normal --filter FullyQualifiedName~UnitTests
