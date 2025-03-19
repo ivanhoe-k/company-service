@@ -25,9 +25,6 @@ jobs:
 
       - name: Restore dependencies
         run: dotnet restore CompanyService.sln
-
-      - name: Build solution
-        run: dotnet build CompanyService.sln --configuration Release --no-restore
-
+        
       - name: Run backend unit tests
-        run: dotnet test CompanyService.Tests/CompanyService.Tests.csproj --configuration Release --no-build --verbosity normal --filter FullyQualifiedName~UnitTests
+        run: dotnet test CompanyService.Tests/CompanyService.Tests.csproj --configuration Release --verbosity normal --filter FullyQualifiedName~UnitTests
