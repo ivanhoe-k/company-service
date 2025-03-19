@@ -55,6 +55,9 @@ csharp_style_expression_bodied_local_functions = false:silent
 # CA1024: Use properties where appropriate
 dotnet_diagnostic.CA1024.severity = none
 
+# SA1611: Element parameters should be documented
+dotnet_diagnostic.SA1611.severity = none
+
 [*.{cs,vb}]
 #### Naming styles ####
 

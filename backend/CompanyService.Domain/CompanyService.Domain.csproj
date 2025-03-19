@@ -2,4 +2,8 @@
 
 	<Import Project="..\code.shared.props" />
 
+	<ItemGroup>
+	  <ProjectReference Include="..\CompanyService.Core\CompanyService.Core.csproj" />
+	</ItemGroup>
+
 </Project>
