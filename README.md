@@ -1,0 +1,1 @@
+[![Run Unit Tests](https://github.com/ivanhoe-k/company-service/actions/workflows/backend_unit_tests_ci.yml/badge.svg)](https://github.com/ivanhoe-k/company-service/actions/workflows/backend_unit_tests_ci.yml)
