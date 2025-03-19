@@ -10,6 +10,10 @@ jobs:
     name: Run Backend Unit Tests
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,10 +24,10 @@ jobs:
           dotnet-version: '9.0.x'
 
       - name: Restore dependencies
-        run: dotnet restore backend/CompanyService.sln
+        run: dotnet restore CompanyService.sln
 
       - name: Build solution
-        run: dotnet build backend/CompanyService.sln --configuration Release --no-restore
+        run: dotnet build CompanyService.sln --configuration Release --no-restore
 
       - name: Run backend unit tests
-        run: dotnet test backend/CompanyService.Tests/CompanyService.Tests.csproj --configuration Release --no-build --verbosity normal --filter FullyQualifiedName~UnitTests
+        run: dotnet test CompanyService.Tests/CompanyService.Tests.csproj --configuration Release --no-build --verbosity normal --filter FullyQualifiedName~UnitTests
