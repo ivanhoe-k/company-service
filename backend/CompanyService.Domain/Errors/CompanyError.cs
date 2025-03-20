@@ -9,11 +9,19 @@ namespace CompanyService.Domain.Errors
         {
         }
 
+        public static CompanyError SomethingWentWrong => new (CompanyErrorCode.SomethingWentWrong);
+
+        public static CompanyError NotFound => new (CompanyErrorCode.NotFound);
+
         public static CompanyError InvalidName => new (CompanyErrorCode.InvalidName);
 
         public static CompanyError InvalidTicker => new (CompanyErrorCode.InvalidTicker);
 
         public static CompanyError InvalidWebsite => new (CompanyErrorCode.InvalidWebsite);
+
+        public static CompanyError DuplicateIsin => new (CompanyErrorCode.DuplicateIsin);
+
+        public static CompanyError ExchangeLookupFailed => new (CompanyErrorCode.ExchangeLookupFailed);
 
         public static CompanyError InvalidIsinLength => new (CompanyErrorCode.InvalidIsinLength);
 

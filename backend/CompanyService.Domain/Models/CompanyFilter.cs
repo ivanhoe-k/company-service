@@ -29,7 +29,10 @@ namespace CompanyService.Domain.Models
         }
 
         public static Result<CompanyError, CompanyFilter> Create(
-            string? name, string? exchange, string? ticker, string? isin)
+            string? name = default, 
+            string? exchange = default, 
+            string? ticker = default, 
+            string? isin = default)
         {
             var isinModel = default(Isin?);
 

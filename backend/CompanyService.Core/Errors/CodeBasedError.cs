@@ -12,5 +12,10 @@ namespace CompanyService.Core.Errors
         {
             Code = code;
         }
+
+        public override string ToString()
+        {
+            return $"{GetType().Name}: {Code}";
+        }
     }
 }
