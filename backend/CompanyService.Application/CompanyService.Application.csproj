@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<Import Project="..\code.shared.props" />
+
+	<ItemGroup>
+	  <ProjectReference Include="..\CompanyService.Domain\CompanyService.Domain.csproj" />
+	</ItemGroup>
+
+</Project>

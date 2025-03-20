@@ -22,6 +22,8 @@ namespace CompanyService.Persistence
                 .HasIndex(c => c.Ticker);
 
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<CompanyEntity>().HasData(SeedData.GetCompanies());
         }
     }
 }
