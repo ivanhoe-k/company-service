@@ -2,9 +2,13 @@
 {
     public enum CompanyErrorCode
     {
+        SomethingWentWrong,
+        NotFound,
         InvalidName,
         InvalidTicker,
         InvalidWebsite,
+        DuplicateIsin,
+        ExchangeLookupFailed,
 
         // ISIN ISO 6166-Specific Errors
         InvalidIsinLength,           // ISIN is not exactly 12 characters
