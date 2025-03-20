@@ -195,7 +195,7 @@ namespace CompanyService.Tests.UnitTests.Domain
 
             _companyRepositoryMock
                 .Setup(repo => repo.GetByIdAsync(companyId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<CompanyError>.Fail<Company>(CompanyError.NotFound));
+                .ReturnsAsync(Result<CompanyError>.Fail<CompanyDto>(CompanyError.NotFound));
 
             // Act
             var result = await _companyManagerService.UpdateCompanyAsync(companyId, updateRequest, CancellationToken.None);
@@ -289,7 +289,7 @@ namespace CompanyService.Tests.UnitTests.Domain
 
             _companyRepositoryMock
                 .Setup(repo => repo.GetByIdAsync(companyId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<CompanyError>.Fail<Company>(CompanyError.NotFound));
+                .ReturnsAsync(Result<CompanyError>.Fail<CompanyDto>(CompanyError.NotFound));
 
             // Act
             var result = await _companyManagerService.GetCompanyByIdAsync(companyId, CancellationToken.None);
@@ -306,9 +306,10 @@ namespace CompanyService.Tests.UnitTests.Domain
         {
             // Arrange
             var existingCompany = CreateCompanyInstance("Microsoft Corporation", "NASDAQ", "MSFT", "US5949181045", "https://www.microsoft.com");
+            var isin = Isin.Create("US5949181045").Value;
 
             _companyRepositoryMock
-                .Setup(repo => repo.GetByIsinAsync(existingCompany.Isin, It.IsAny<CancellationToken>()))
+                .Setup(repo => repo.GetByIsinAsync(isin, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(Result<CompanyError>.Ok(existingCompany));
 
             // Act
@@ -317,9 +318,9 @@ namespace CompanyService.Tests.UnitTests.Domain
             // Assert
             result.Failed.Should().BeFalse();
             result.Value.Should().NotBeNull();
-            result.Value.Isin.Should().Be(existingCompany.Isin);
+            result.Value.Isin.Should().Be(isin);
 
-            _companyRepositoryMock.Verify(repo => repo.GetByIsinAsync(existingCompany.Isin, It.IsAny<CancellationToken>()), Times.Once);
+            _companyRepositoryMock.Verify(repo => repo.GetByIsinAsync(isin, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -328,7 +329,7 @@ namespace CompanyService.Tests.UnitTests.Domain
             // Arrange
             _companyRepositoryMock
                 .Setup(repo => repo.GetByIsinAsync(It.IsAny<Isin>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(Result<CompanyError>.Fail<Company>(CompanyError.NotFound));
+                .ReturnsAsync(Result<CompanyError>.Fail<CompanyDto>(CompanyError.NotFound));
 
             // Act
             var result = await _companyManagerService.GetCompanyByIsinAsync("US5949181045", CancellationToken.None);
@@ -345,7 +346,7 @@ namespace CompanyService.Tests.UnitTests.Domain
         {
             // Arrange
             var request = GetCompaniesRequest.Create().Value;
-            var companies = new List<Company>
+            var companies = new List<CompanyDto>
             {
                 CreateCompanyInstance("Apple Inc.", "NASDAQ", "AAPL", "US0378331005", "http://www.apple.com"),
                 CreateCompanyInstance("Microsoft Corporation", "NASDAQ", "MSFT", "US5949181045", "https://www.microsoft.com"),
@@ -374,7 +375,7 @@ namespace CompanyService.Tests.UnitTests.Domain
         {
             // Arrange
             var request = GetCompaniesRequest.Create().Value;
-            var emptyPageResult = CreatePageInstance(new List<Company>(), 0);
+            var emptyPageResult = CreatePageInstance(Array.Empty<CompanyDto>(), 0);
 
             _companyRepositoryMock
                 .Setup(repo => repo.GetCompaniesAsync(request, It.IsAny<CancellationToken>()))
@@ -389,25 +390,23 @@ namespace CompanyService.Tests.UnitTests.Domain
             result.Value.TotalCount.Should().Be(0);
         }
 
-        private Company CreateCompanyInstance(string name, string exchangeName, string ticker, string isin, string? website)
+        private CompanyDto CreateCompanyInstance(string name, string exchangeName, string ticker, string isin, string? website)
         {
             var exchangeLookup = _mockStockExchanges.ToDictionary(e => e.ExchangeName, e => e.MicCode, StringComparer.OrdinalIgnoreCase);
 
-            var createRequest = new CreateCompanyRequest(name, exchangeName, ticker, isin, website);
-            var companyResult = Company.Create(createRequest, exchangeLookup);
-
-            if (companyResult.Failed)
-            {
-                throw new InvalidOperationException($"Failed to create a valid Company instance: {companyResult.Error}");
-            }
-
-            return companyResult.Value;
+            return new CompanyDto(
+                id: Guid.NewGuid(),
+                name: name,
+                exchangeMicCode: exchangeLookup[exchangeName], 
+                ticker: ticker, 
+                isin: isin, 
+                website != null ? new Uri(website) : null);
         }
 
-        private Page<Company> CreatePageInstance(IReadOnlyCollection<Company> companies, int totalCount)
+        private Page<CompanyDto> CreatePageInstance(IReadOnlyCollection<CompanyDto> companies, int totalCount)
         {
             var edges = companies
-                .Select(company => new Edge<Company>(company, company.Id.ToString())) 
+                .Select(company => new Edge<CompanyDto>(company, company.Id.ToString())) 
                 .ToList();
 
             var pageInfo = new PageInfo(
@@ -416,7 +415,7 @@ namespace CompanyService.Tests.UnitTests.Domain
                 StartCursor: edges.FirstOrDefault()?.Cursor,
                 EndCursor: edges.LastOrDefault()?.Cursor);
 
-            return new Page<Company>(edges, totalCount, pageInfo);
+            return new Page<CompanyDto>(edges, totalCount, pageInfo);
         }
     }
 }

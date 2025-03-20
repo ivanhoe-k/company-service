@@ -76,13 +76,23 @@ namespace CompanyService.Domain.Services
 
             _logger.LogInformation("Fetching company by ID: {CompanyId}", id);
 
-            var companyResult = await _companyRepository.GetByIdAsync(id, cancellationToken);
-            if (companyResult.Failed)
+            var companyTask = _companyRepository.GetByIdAsync(id, cancellationToken);
+            var exchangeLookupTask = GetStockExchangeLookupByMicCodeAsync(cancellationToken);
+
+            await Task.WhenAll(companyTask, exchangeLookupTask);
+
+            if (companyTask.Result.Failed)
             {
                 _logger.LogWarning("Failed to find company with ID: {CompanyId}", id);
+                return Result<CompanyError>.Fail<Company>(companyTask.Result.Error!);
             }
 
-            return companyResult;
+            if (exchangeLookupTask.Result.Failed)
+            {
+                return Result<CompanyError>.Fail<Company>(exchangeLookupTask.Result.Error!);
+            }
+
+            return Company.Create(companyTask.Result.Value, exchangeLookupTask.Result.Value);
         }
 
         public async Task<Result<CompanyError, Company>> GetCompanyByIsinAsync(string isin, CancellationToken cancellationToken)
@@ -98,13 +108,23 @@ namespace CompanyService.Domain.Services
                 return Result<CompanyError>.Fail<Company>(isinValidationResult.Error!);
             }
 
-            var companyResult = await _companyRepository.GetByIsinAsync(isinValidationResult.Value, cancellationToken);
-            if (companyResult.Failed)
+            var companyTask = _companyRepository.GetByIsinAsync(isinValidationResult.Value, cancellationToken);
+            var exchangeLookupTask = GetStockExchangeLookupByMicCodeAsync(cancellationToken);
+
+            await Task.WhenAll(companyTask, exchangeLookupTask);
+
+            if (companyTask.Result.Failed)
             {
                 _logger.LogWarning("Failed to find company with ISIN: {Isin}", isin);
+                return Result<CompanyError>.Fail<Company>(companyTask.Result.Error!);
             }
 
-            return companyResult;
+            if (exchangeLookupTask.Result.Failed)
+            {
+                return Result<CompanyError>.Fail<Company>(exchangeLookupTask.Result.Error!);
+            }
+
+            return Company.Create(companyTask.Result.Value, exchangeLookupTask.Result.Value);
         }
 
         public async Task<Result<CompanyError, Page<Company>>> GetCompaniesAsync(
@@ -114,19 +134,40 @@ namespace CompanyService.Domain.Services
 
             _logger.LogInformation("Fetching companies for request: {Request}", request);
 
-            var result = await _companyRepository.GetCompaniesAsync(request, cancellationToken);
-            if (result.Failed)
+            var companiesDtoTask = _companyRepository.GetCompaniesAsync(request, cancellationToken);
+            var exchangeLookupTask = GetStockExchangeLookupByMicCodeAsync(cancellationToken);
+
+            await Task.WhenAll(companiesDtoTask, exchangeLookupTask);
+
+            if (companiesDtoTask.Result.Failed)
             {
-                _logger.LogError("Failed to retrieve companies. Error: {Error}", result.Error);
-                return Result<CompanyError>.Fail<Page<Company>>(result.Error!);
+                _logger.LogError("Failed to retrieve companies. Error: {Error}", companiesDtoTask.Result.Error);
+                return Result<CompanyError>.Fail<Page<Company>>(companiesDtoTask.Result.Error!);
             }
 
-            if (result.Value.TotalCount == 0)
+            if (companiesDtoTask.Result.Value.TotalCount <= 0)
             {
                 _logger.LogInformation("No companies found.");
             }
 
-            return result;
+            if (exchangeLookupTask.Result.Failed)
+            {
+                return Result<CompanyError>.Fail<Page<Company>>(exchangeLookupTask.Result.Error!);
+            }
+
+            var companiesResult = companiesDtoTask.Result.Value.Items
+                .Select(company => Company.Create(company, exchangeLookupTask.Result.Value))
+                .ToList();
+
+            if (companiesResult.Any(companyResult => companyResult.Failed))
+            {
+                return Result<CompanyError>.Fail<Page<Company>>(companiesResult.First(c => c.Failed).Error!);
+            }
+
+            return Result<CompanyError>.Ok(new Page<Company>(
+                items: companiesResult.Select(companyResult => companyResult.Value).ToList(),
+                companiesDtoTask.Result.Value.TotalCount,
+                pageInfo: companiesDtoTask.Result.Value.PageInfo));
         }
 
         public async Task<Result<CompanyError, Company>> UpdateCompanyAsync(
@@ -137,21 +178,23 @@ namespace CompanyService.Domain.Services
 
             _logger.LogInformation("Updating company {CompanyId} with new values: {UpdateRequest}", id, updateRequest);
 
-            var existingCompanyResult = await _companyRepository.GetByIdAsync(id, cancellationToken);
-            if (existingCompanyResult.Failed)
+            var existingCompanyTask = GetCompanyByIdAsync(id, cancellationToken);
+            var exchangeLookupTask = GetStockExchangeLookupByNameAsync(cancellationToken);
+
+            await Task.WhenAll(existingCompanyTask, exchangeLookupTask);
+
+            if (existingCompanyTask.Result.Failed)
             {
-                _logger.LogWarning("Company with ID {CompanyId} not found.", id);
-                return Result<CompanyError>.Fail<Company>(existingCompanyResult.Error!);
+                return Result<CompanyError>.Fail<Company>(existingCompanyTask.Result.Error!);
             }
 
-            var exchangeLookupResult = await GetStockExchangeLookupByNameAsync(cancellationToken);
-            if (exchangeLookupResult.Failed)
+            if (exchangeLookupTask.Result.Failed)
             {
-                return Result<CompanyError>.Fail<Company>(exchangeLookupResult.Error!);
+                return Result<CompanyError>.Fail<Company>(exchangeLookupTask.Result.Error!);
             }
 
-            var existingCompany = existingCompanyResult.Value;
-            var updatedCompanyResult = existingCompany.Update(updateRequest, exchangeLookupResult.Value);
+            var existingCompany = existingCompanyTask.Result.Value;
+            var updatedCompanyResult = existingCompany.Update(updateRequest, exchangeLookupTask.Result.Value);
             if (updatedCompanyResult.Failed)
             {
                 _logger.LogWarning("Failed to update company {CompanyId} due to validation error: {Error}", id, updatedCompanyResult.Error);
@@ -182,6 +225,22 @@ namespace CompanyService.Domain.Services
 
             var exchangeLookupByName = exchangeResult.Value
                 .ToDictionary(e => e.ExchangeName, e => e.MicCode, StringComparer.OrdinalIgnoreCase);
+
+            return Result<CompanyError>.Ok((IReadOnlyDictionary<string, string>)exchangeLookupByName);
+        }
+
+        private async Task<Result<CompanyError, IReadOnlyDictionary<string, string>>> GetStockExchangeLookupByMicCodeAsync(CancellationToken cancellationToken)
+        {
+            var exchangeResult = await _stockExchangeProvider.GetStockExchangesAsync(cancellationToken);
+
+            if (exchangeResult.Failed)
+            {
+                _logger.LogError("Failed to retrieve stock exchange data: {Error}", exchangeResult.Error);
+                return Result<CompanyError>.Fail<IReadOnlyDictionary<string, string>>(exchangeResult.Error!);
+            }
+
+            var exchangeLookupByName = exchangeResult.Value
+                .ToDictionary(e => e.MicCode, e => e.ExchangeName, StringComparer.OrdinalIgnoreCase);
 
             return Result<CompanyError>.Ok((IReadOnlyDictionary<string, string>)exchangeLookupByName);
         }
