@@ -96,6 +96,46 @@ namespace CompanyService.Domain.Models
                 website: validWebsiteResult.Value));
         }
 
+        public static Result<CompanyError, Company> Create(
+            CompanyDto companyDto,
+            IReadOnlyDictionary<string, string> exchangeLookupByMicCode)
+        {
+            companyDto.ThrowIfNull();
+            exchangeLookupByMicCode.ThrowIfNull();
+
+            if (string.IsNullOrWhiteSpace(companyDto.Name))
+            {
+                return Result<CompanyError>.Fail<Company>(CompanyError.InvalidName);
+            }
+
+            if (string.IsNullOrWhiteSpace(companyDto.Ticker))
+            {
+                return Result<CompanyError>.Fail<Company>(CompanyError.InvalidTicker);
+            }
+
+            var exchangeResult = StockExchange.CreateFromName(companyDto.ExchangeMicCode, exchangeLookupByMicCode);
+
+            if (exchangeResult.Failed)
+            {
+                return Result<CompanyError>.Fail<Company>(exchangeResult.Error!);
+            }
+
+            var isinResult = Isin.Create(companyDto.Isin);
+
+            if (isinResult.Failed)
+            {
+                return Result<CompanyError>.Fail<Company>(isinResult.Error!);
+            }
+
+            return Result<CompanyError>.Ok(new Company(
+                id: companyDto.Id,
+                name: companyDto.Name.Trim(),
+                exchange: exchangeResult.Value,
+                ticker: companyDto.Ticker.Trim(),
+                isin: isinResult.Value,
+                website: companyDto.Website));
+        }
+
         /// <summary>
         /// Updates an existing <see cref="Company"/> entity with new values.
         /// </summary>

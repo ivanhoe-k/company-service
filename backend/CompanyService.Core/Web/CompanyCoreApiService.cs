@@ -18,7 +18,17 @@ namespace CompanyService.Core.Web
 {
     public class CompanyCoreApiService
     {
+        private Action<IServiceCollection, IConfiguration>? _configureCustomServices;
+
         public static CompanyCoreApiService Create() => new CompanyCoreApiService();
+
+        public CompanyCoreApiService ConfigureServices(Action<IServiceCollection, IConfiguration> configure)
+        {
+            configure.ThrowIfNull();
+            _configureCustomServices = configure;
+
+            return this;
+        }
 
         public async Task RunAsync()
         {
@@ -102,6 +112,8 @@ namespace CompanyService.Core.Web
 
             services.AddSwagger(appConfiguration);
             services.AddProblemDetails();
+
+            _configureCustomServices?.Invoke(services, configuration);
         }
 
         protected virtual void ConfigureHost(ConfigureHostBuilder builder)

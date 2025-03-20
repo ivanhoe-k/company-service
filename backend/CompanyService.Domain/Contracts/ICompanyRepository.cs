@@ -17,13 +17,11 @@ namespace CompanyService.Domain.Contracts
 
         Task<Result<CompanyError>> UpdateAsync(Company company, CancellationToken cancellationToken);
 
-        Task<Result<CompanyError>> DeleteAsync(Guid id, CancellationToken cancellationToken);
+        Task<Result<CompanyError, CompanyDto>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
-        Task<Result<CompanyError, Company>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+        Task<Result<CompanyError, CompanyDto>> GetByIsinAsync(Isin isin, CancellationToken cancellationToken);
 
-        Task<Result<CompanyError, Company>> GetByIsinAsync(Isin isin, CancellationToken cancellationToken);
-
-        Task<Result<CompanyError, Page<Company>>> GetCompaniesAsync(GetCompaniesRequest request, CancellationToken cancellationToken);
+        Task<Result<CompanyError, Page<CompanyDto>>> GetCompaniesAsync(GetCompaniesRequest request, CancellationToken cancellationToken);
 
         Task<Result<CompanyError, bool>> ExistsByIsinAsync(string isin, CancellationToken cancellationToken);
     }

@@ -15,9 +15,6 @@
     <OutDir>$(OutputPath)</OutDir>
     <DocumentationFile>$(SolutionDir).Build\doc_$(Configuration)\$(MSBuildProjectName).xml</DocumentationFile>
 
-    <!-- NuGet packages generation -->
-    <PackageOutputPath>$(SolutionDir).Packages</PackageOutputPath>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
  </PropertyGroup>
 </Project>
 
