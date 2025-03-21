@@ -19,5 +19,8 @@
         // Stock Exchange ISO 10383-Specific Errors
         InvalidExchange,             // Exchange field is empty or null
         UnknownExchange,             // Provided MIC code is not in the list
+
+        InvalidClientCredentials,    // Client ID or secret is invalid
+        AuthDisabled,                // Authentication is disabled
     }
 }

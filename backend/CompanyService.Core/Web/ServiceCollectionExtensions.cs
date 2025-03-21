@@ -1,10 +1,13 @@
 ﻿using System.Linq;
+using System.Text;
 using CompanyService.Core.Common;
 using CompanyService.Core.Web.Configurations;
 using CompanyService.Core.Web.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 namespace CompanyService.Core.Web
@@ -31,7 +34,7 @@ namespace CompanyService.Core.Web
                         Version = appConfiguration.ApiConfiguration.Version
                     });
 
-                if (appConfiguration.AuthenticationEnabled)
+                if (appConfiguration.AuthConfiguration.Enabled)
                 {
                     options.AddSecurityDefinition(
                         name: JwtBearerDefaults.AuthenticationScheme,
@@ -61,6 +64,34 @@ namespace CompanyService.Core.Web
                     });
                 }
             });
+
+            return services;
+        }
+
+        public static IServiceCollection AddAuthentication(this IServiceCollection services, WebAppConfiguration appConfiguration)
+        {
+            appConfiguration.ThrowIfNull();
+            if (!appConfiguration.AuthConfiguration.Enabled)
+            {
+                return services;
+            }
+
+            var key = Encoding.UTF8.GetBytes(appConfiguration.AuthConfiguration.JwtSecret!);
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false; // Disabled for local testing
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false, // Would be validated in a real app
+                        ValidateAudience = false, // Would be validated in a real app
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key)
+                    };
+                });
 
             return services;
         }

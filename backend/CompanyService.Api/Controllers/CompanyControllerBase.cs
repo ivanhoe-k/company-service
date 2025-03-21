@@ -45,6 +45,7 @@ namespace CompanyService.Api.Controllers
                 CompanyErrorCode.InvalidIsinCheckDigit => BadRequest("Invalid ISIN check digit."),
                 CompanyErrorCode.InvalidExchange => BadRequest("Invalid exchange."),
                 CompanyErrorCode.UnknownExchange => BadRequest("Unknown exchange."),
+                CompanyErrorCode.InvalidClientCredentials => Unauthorized("Invalid client credentials."),
                 _ => StatusCode(500, "An error occurred while processing the request.")
             };
         }
