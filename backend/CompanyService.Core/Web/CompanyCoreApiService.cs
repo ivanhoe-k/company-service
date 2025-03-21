@@ -112,6 +112,7 @@ namespace CompanyService.Core.Web
 
             services.AddSwagger(appConfiguration);
             services.AddProblemDetails();
+            services.AddAuthentication(appConfiguration);
 
             _configureCustomServices?.Invoke(services, configuration);
         }

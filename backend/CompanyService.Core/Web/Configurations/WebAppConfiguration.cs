@@ -7,7 +7,8 @@ namespace CompanyService.Core.Web.Configurations
     {
         public string BasePath { get; init; } = string.Empty;
 
-        public bool AuthenticationEnabled { get; init; }
+        [RequiredWithNested]
+        public AuthConfiguration AuthConfiguration { get; init; } 
 
         [RequiredWithNested]
         public ApiConfiguration ApiConfiguration { get; init; }

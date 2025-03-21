@@ -34,5 +34,9 @@ namespace CompanyService.Domain.Errors
         public static CompanyError InvalidExchange => new (CompanyErrorCode.InvalidExchange);
 
         public static CompanyError UnknownExchange => new (CompanyErrorCode.UnknownExchange);
+
+        public static CompanyError InvalidClientCredentials => new (CompanyErrorCode.InvalidClientCredentials);
+
+        public static CompanyError AuthDisabled => new (CompanyErrorCode.AuthDisabled);
     }
 }
