@@ -113,7 +113,7 @@ namespace CompanyService.Domain.Models
                 return Result<CompanyError>.Fail<Company>(CompanyError.InvalidTicker);
             }
 
-            var exchangeResult = StockExchange.CreateFromName(companyDto.ExchangeMicCode, exchangeLookupByMicCode);
+            var exchangeResult = StockExchange.CreateFromMicCode(companyDto.ExchangeMicCode, exchangeLookupByMicCode);
 
             if (exchangeResult.Failed)
             {
