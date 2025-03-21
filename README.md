@@ -20,14 +20,17 @@ A .NET 9.0 backend project influenced by Hexagonal (Ports & Adapters) Architectu
 ## 📂 Project Structure
 
 ```
-CompanyService/
-├── Api/                # REST API Controllers
-├── Application/        # Use cases and orchestration
-├── Core/               # Shared configs, utilities, models
-├── Domain/             # Business services, domain models, domain contracts
-├── Persistence/        # EF Core models, DbContext, Repositories
-├── Tests/              # Unit & Integration tests
-├── docker-compose.yml  # Local dev setup
+company-service/
+├── backend/                # Entire backend solution
+│   ├── CompanyService.Api/
+│   ├── CompanyService.Application/
+│   ├── CompanyService.Core/
+│   ├── CompanyService.Domain/
+│   ├── CompanyService.Persistence/
+│   ├── CompanyService.Tests/
+│   └── ...
+├── frontend/               # (Not implemented yet)
+├── docker-compose.yml      # Docker setup for API + SQL + Seq
 ```
 
 ---
