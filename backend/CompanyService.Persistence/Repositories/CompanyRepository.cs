@@ -136,38 +136,35 @@ namespace CompanyService.Infrastructure.Persistence.Repositories
                 _ => query
             };
 
-            // Apply cursor-based pagination
-            if (!string.IsNullOrWhiteSpace(request.Cursor) &&
-                Guid.TryParse(request.Cursor, out var cursorId))
-            {
-                query = query.Where(c => c.Id.CompareTo(cursorId) > 0);
-            }
+            // Get total count first
+            var totalCount = await query.CountAsync(cancellationToken);
 
-            /*
-             * NOTE:
-             * - We could optimize this by writing a single complex SQL query to fetch total count, pagination,
-             *   and the actual data in one database round trip.
-             * - However, for simplicity, we keep it as-is for now while still reducing unnecessary queries.
-             */
-            var companies = await query
-                .Take(request.Limit + 1)
+            // Calculate pagination
+            var pageSize = request.PageSize;
+            var currentPage = request.PageNumber;
+            var skip = (currentPage - 1) * pageSize;
+
+            var items = await query
+                .Skip(skip)
+                .Take(pageSize)
                 .ToListAsync(cancellationToken);
 
-            // Determine pagination details
-            var hasNextPage = companies.Count > request.Limit;
-            var limitedCompanies = hasNextPage ? companies.Take(request.Limit).ToList() : companies;
-            var startCursor = limitedCompanies.FirstOrDefault()?.Id.ToString();
-            var endCursor = limitedCompanies.LastOrDefault()?.Id.ToString();
-            var totalCount = hasNextPage ? -1 : await query.CountAsync(cancellationToken); // Avoid extra count query unless needed
+            // Map to DTOs
+            var mappedItems = items.Select(PersistenceToDomainMapper.Map).ToList();
+
+            // Build PageInfo
+            var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
+            var pageInfo = new PageInfo(
+                currentPage: currentPage,
+                pageSize: pageSize,
+                totalPages: totalPages,
+                hasNextPage: currentPage < totalPages,
+                hasPreviousPage: currentPage > 1);
 
             var page = new Page<CompanyDto>(
-                edges: PersistenceToDomainMapper.Map(limitedCompanies),
+                items: mappedItems,
                 totalCount: totalCount,
-                pageInfo: new PageInfo(
-                    StartCursor: startCursor,
-                    EndCursor: endCursor,
-                    HasNextPage: hasNextPage,
-                    HasPreviousPage: !string.IsNullOrWhiteSpace(request.Cursor)));
+                pageInfo: pageInfo);
 
             return Result<CompanyError>.Ok(page);
         }

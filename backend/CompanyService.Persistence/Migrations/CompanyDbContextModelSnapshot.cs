@@ -25,6 +25,12 @@ namespace CompanyService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<long>("Cursor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Cursor"));
+
                     b.Property<string>("ExchangeMicCode")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -51,6 +57,8 @@ namespace CompanyService.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Cursor");
+
                     b.HasIndex("Isin")
                         .IsUnique();
 
@@ -62,6 +70,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("3e5b91e5-6a2f-4f77-8b25-4a6bca7263b1"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US0378331005",
                             Name = "Apple Inc.",
@@ -71,6 +80,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("66e0b1f9-13b3-4b63-b9e6-77daa21e2f7f"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US5949181045",
                             Name = "Microsoft Corporation",
@@ -80,6 +90,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("a2828bfc-254b-4df1-9a8a-95f8f0dccf47"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US0231351067",
                             Name = "Amazon.com Inc.",
@@ -89,6 +100,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("847e915f-56a7-4c8d-b7d1-abf2e1d496ad"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US02079K3059",
                             Name = "Alphabet Inc. (Google)",
@@ -98,6 +110,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("a56f7c6c-88f8-4e77-96d8-58f82c4d3b94"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US30303M1027",
                             Name = "Meta Platforms Inc. (Facebook)",
@@ -106,6 +119,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("d8a2fe5f-9d3c-4b17-ae9c-46c6b8b3b6a2"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US88160R1014",
                             Name = "Tesla Inc.",
@@ -115,6 +129,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("3f1e3c45-44bb-40b9-be5e-0e54d36cfb49"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNAS",
                             Isin = "US67066G1040",
                             Name = "NVIDIA Corporation",
@@ -123,6 +138,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("56d9f87d-ec24-4f88-8339-7e2a9d9d50f2"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNYS",
                             Isin = "US92826C8394",
                             Name = "Visa Inc.",
@@ -132,6 +148,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("7cb6e2c8-8f9d-40e8-bbd6-54730b2c2c0a"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNYS",
                             Isin = "US4781601046",
                             Name = "Johnson & Johnson",
@@ -140,6 +157,7 @@ namespace CompanyService.Persistence.Migrations
                         new
                         {
                             Id = new Guid("9fbaa3c6-ce8e-48b6-908e-6baf6a0a3db7"),
+                            Cursor = 0L,
                             ExchangeMicCode = "XNYS",
                             Isin = "US1912161007",
                             Name = "The Coca-Cola Company",

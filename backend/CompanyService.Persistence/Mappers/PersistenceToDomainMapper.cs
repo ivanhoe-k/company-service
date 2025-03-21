@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using CompanyService.Core.Common;
-using CompanyService.Core.Models;
+﻿using CompanyService.Core.Common;
 using CompanyService.Domain.Models;
 using CompanyService.Persistence.Models;
 
@@ -20,15 +17,6 @@ namespace CompanyService.Persistence.Mappers
                 ticker: entity.Ticker,
                 isin: entity.Isin,
                 website: entity.Website);
-        }
-
-        public static IReadOnlyCollection<Edge<CompanyDto>> Map(IReadOnlyCollection<CompanyEntity> entities)
-        {
-            entities.ThrowIfNull();
-
-            return entities
-                .Select(entity => new Edge<CompanyDto>(Map(entity), entity.Id.ToString()))
-                .ToList();
         }
     }
 }

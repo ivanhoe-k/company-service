@@ -2,43 +2,43 @@
 using CompanyService.Core.Models;
 using CompanyService.Domain.Errors;
 
-namespace CompanyService.Domain.Models
+namespace CompanyService.Domain.Models;
+
+public sealed record GetCompaniesRequest
 {
-    public sealed record GetCompaniesRequest
+    public const int MinPageSize = 1;
+    public const int MaxPageSize = 100;
+
+    public int PageNumber { get; }
+
+    public int PageSize { get; }
+
+    public SortOrder SortOrder { get; }
+
+    public CompanyFilter? Filter { get; }
+
+    private GetCompaniesRequest(
+        int pageNumber,
+        int pageSize,
+        CompanyFilter? filter,
+        SortOrder sortOrder = SortOrder.Asc)
     {
-        public const int MinLimit = 1;
-        public const int MaxLimit = 100;
+        pageNumber.ThrowIf(pageNumber < 1, "PageNumber must be at least 1.");
+        pageSize.ThrowIf(pageSize < MinPageSize || pageSize > MaxPageSize, $"PageSize must be between {MinPageSize} and {MaxPageSize}.");
 
-        public string? Cursor { get; } 
+        PageNumber = pageNumber;
+        PageSize = pageSize;
+        SortOrder = sortOrder;
+        Filter = filter;
+    }
 
-        public int Limit { get; }
-
-        public SortOrder SortOrder { get; }
-
-        public CompanyFilter? Filter { get; }
-
-        private GetCompaniesRequest(
-            string? cursor, 
-            CompanyFilter? filter,
-            SortOrder sortOrder = SortOrder.Asc,
-            int limit = 10)
-        {
-            limit.ThrowIf(limit < MinLimit || limit > MaxLimit, $"Limit must be between {MinLimit} and {MaxLimit}.");
-
-            Cursor = cursor;
-            Limit = limit;
-            SortOrder = sortOrder;
-            Filter = filter;
-        }
-
-        public static Result<CompanyError, GetCompaniesRequest> Create(
-            string? cursor = default,
-            CompanyFilter? filter = default,
-            SortOrder sortOrder = SortOrder.Asc,
-            int limit = 10)
-        {
-            return Result<CompanyError>.Ok(
-                new GetCompaniesRequest(cursor, filter, sortOrder, limit));
-        }
+    public static Result<CompanyError, GetCompaniesRequest> Create(
+        int pageNumber = 1,
+        int pageSize = 10,
+        CompanyFilter? filter = default,
+        SortOrder sortOrder = SortOrder.Asc)
+    {
+        return Result<CompanyError>.Ok(
+            new GetCompaniesRequest(pageNumber, pageSize, filter, sortOrder));
     }
 }
