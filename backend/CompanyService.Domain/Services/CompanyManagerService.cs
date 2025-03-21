@@ -155,19 +155,9 @@ namespace CompanyService.Domain.Services
                 return Result<CompanyError>.Fail<Page<Company>>(exchangeLookupTask.Result.Error!);
             }
 
-            var companiesResult = companiesDtoTask.Result.Value.Items
-                .Select(company => Company.Create(company, exchangeLookupTask.Result.Value))
-                .ToList();
-
-            if (companiesResult.Any(companyResult => companyResult.Failed))
-            {
-                return Result<CompanyError>.Fail<Page<Company>>(companiesResult.First(c => c.Failed).Error!);
-            }
-
-            return Result<CompanyError>.Ok(new Page<Company>(
-                items: companiesResult.Select(companyResult => companyResult.Value).ToList(),
-                companiesDtoTask.Result.Value.TotalCount,
-                pageInfo: companiesDtoTask.Result.Value.PageInfo));
+            return CreateFromCompanyDtoPage(
+                companiesDtoTask.Result.Value,
+                exchangeLookupTask.Result.Value);
         }
 
         public async Task<Result<CompanyError, Company>> UpdateCompanyAsync(
@@ -261,6 +251,22 @@ namespace CompanyService.Domain.Services
             }
 
             return existingCompanyResult;
+        }
+
+        private Result<CompanyError, Page<Company>> CreateFromCompanyDtoPage(
+            Page<CompanyDto> page, IReadOnlyDictionary<string, string> exchangeLookupByMic)
+        {
+            var companyEdgesResult = page.Items.Select(companyDto => Company.Create(companyDto, exchangeLookupByMic)).ToList();
+
+            if (companyEdgesResult.Any(companyResult => companyResult.Failed))
+            {
+                return Result<CompanyError>.Fail<Page<Company>>(companyEdgesResult.First(c => c.Failed).Error!);
+            }
+
+            return Result<CompanyError>.Ok(new Page<Company>(
+                items: companyEdgesResult.Select(c => c.Value).ToList(),
+                totalCount: page.TotalCount,
+                pageInfo: page.PageInfo));
         }
     }
 }

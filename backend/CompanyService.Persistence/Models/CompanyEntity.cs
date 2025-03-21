@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CompanyService.Persistence.Models
 {
@@ -26,5 +27,8 @@ namespace CompanyService.Persistence.Models
 
         [MaxLength(2000)] // Standard max length for URLs
         public Uri? Website { get; set; }
+
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public long Cursor { get; set; }
     }
 }

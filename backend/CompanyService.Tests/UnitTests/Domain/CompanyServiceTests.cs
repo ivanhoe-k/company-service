@@ -364,7 +364,7 @@ namespace CompanyService.Tests.UnitTests.Domain
             // Assert
             result.Failed.Should().BeFalse();
             result.Value.Should().NotBeNull();
-            result.Value.Edges.Should().HaveCount(2);
+            result.Value.Items.Should().HaveCount(2);
             result.Value.TotalCount.Should().Be(companies.Count);
 
             _companyRepositoryMock.Verify(repo => repo.GetCompaniesAsync(request, It.IsAny<CancellationToken>()), Times.Once);
@@ -386,7 +386,7 @@ namespace CompanyService.Tests.UnitTests.Domain
 
             // Assert
             result.Failed.Should().BeFalse();
-            result.Value.Edges.Should().BeEmpty();
+            result.Value.Items.Should().BeEmpty();
             result.Value.TotalCount.Should().Be(0);
         }
 
@@ -405,17 +405,14 @@ namespace CompanyService.Tests.UnitTests.Domain
 
         private Page<CompanyDto> CreatePageInstance(IReadOnlyCollection<CompanyDto> companies, int totalCount)
         {
-            var edges = companies
-                .Select(company => new Edge<CompanyDto>(company, company.Id.ToString())) 
-                .ToList();
-
             var pageInfo = new PageInfo(
-                HasNextPage: false,
-                HasPreviousPage: false,
-                StartCursor: edges.FirstOrDefault()?.Cursor,
-                EndCursor: edges.LastOrDefault()?.Cursor);
+                currentPage: 1,
+                pageSize: 2,
+                totalPages: 1,
+                hasNextPage: false,
+                hasPreviousPage: false);
 
-            return new Page<CompanyDto>(edges, totalCount, pageInfo);
+            return new Page<CompanyDto>(companies, totalCount, pageInfo);
         }
     }
 }

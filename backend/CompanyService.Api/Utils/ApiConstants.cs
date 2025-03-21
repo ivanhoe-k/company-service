@@ -5,5 +5,6 @@
         public const string CompanyEndpoint = "api/companies";
 
         public const string CompanyIdRoute = "{id}";
+        public const string CompanyByIsinRoute = "isin";
     }
 }

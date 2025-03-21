@@ -22,7 +22,9 @@ namespace CompanyService.Persistence.Migrations
                     ExchangeMicCode = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Ticker = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     Isin = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: false),
-                    Website = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true)
+                    Website = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: true),
+                    Cursor = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1")
                 },
                 constraints: table =>
                 {
@@ -47,6 +49,11 @@ namespace CompanyService.Persistence.Migrations
                     { new Guid("d8a2fe5f-9d3c-4b17-ae9c-46c6b8b3b6a2"), "XNAS", "US88160R1014", "Tesla Inc.", "TSLA", "https://www.tesla.com/" }
                 });
 #pragma warning restore SA1118 // Parameter should not span multiple lines
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Companies_Cursor",
+                table: "Companies",
+                column: "Cursor");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Companies_Isin",

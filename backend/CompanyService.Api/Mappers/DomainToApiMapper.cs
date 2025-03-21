@@ -1,5 +1,8 @@
-﻿using CompanyService.Api.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using CompanyService.Api.Models;
 using CompanyService.Core.Common;
+using CompanyService.Core.Models;
 using CompanyService.Domain.Models;
 
 namespace CompanyService.Api.Mappers
@@ -17,6 +20,23 @@ namespace CompanyService.Api.Mappers
                 Ticker: company.Ticker,
                 Isin: company.Isin.Value,
                 Website: company.Website?.ToString());
+        }
+
+        public static Page<CompanyApi> Map(Page<Company> page)
+        {
+            page.ThrowIfNull();
+
+            return new Page<CompanyApi>(
+                items: Map(page.Items),
+                totalCount: page.TotalCount,
+                pageInfo: page.PageInfo);
+        }
+
+        public static IReadOnlyCollection<CompanyApi> Map(IReadOnlyCollection<Company> companies)
+        {
+            companies.ThrowIfNull();
+
+            return companies.Select(Map).ToList();
         }
     }
 }
