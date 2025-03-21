@@ -2,9 +2,9 @@
 using System.Text;
 using CompanyService.Core.Common;
 using CompanyService.Core.Web.Configurations;
+using CompanyService.Core.Web.StartupJobs;
 using CompanyService.Core.Web.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
@@ -14,6 +14,18 @@ namespace CompanyService.Core.Web
 {
     public static class ServiceCollectionExtensions
     {
+        public static IServiceCollection AddStartupJobs(this IServiceCollection services)
+            => services.AddTransient<IStartupFilter, StartupJobStartupFilter>();
+
+        public static IServiceCollection AddStartupJob<TStartupJob>(this IServiceCollection services)
+              where TStartupJob : class, IStartupJob
+        {
+            services.AddTransient<TStartupJob>();
+            services.AddTransient<IStartupJob>(_ => _.GetRequiredService<TStartupJob>());
+
+            return services;
+        }
+
         public static IServiceCollection AddConfigurationValidationStartupFilter(this IServiceCollection services)
             => services.AddTransient<IStartupFilter, ConfigurationsValidationStartupFilter>();
 

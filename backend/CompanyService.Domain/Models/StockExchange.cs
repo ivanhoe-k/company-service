@@ -42,5 +42,31 @@ namespace CompanyService.Domain.Models
             return Result<CompanyError, StockExchange>.Ok(new StockExchange(
                 new StockExchangeInfo(micCode, normalizedName)));
         }
+
+        /// <summary>
+        /// Creates a <see cref="StockExchange"/> instance from name.
+        /// </summary>
+        /// <param name="micCode">The exchange MIC.</param>
+        /// <param name="exchangeLookupByMicCode">A dictionary of valid exchange names and MIC codes.</param>
+        /// <returns>A valid StockExchange instance or an error.</returns>
+        public static Result<CompanyError, StockExchange> CreateFromMicCode(string micCode, IReadOnlyDictionary<string, string> exchangeLookupByMicCode)
+        {
+            exchangeLookupByMicCode.ThrowIfNull();
+
+            if (string.IsNullOrWhiteSpace(micCode))
+            {
+                return Result<CompanyError>.Fail<StockExchange>(CompanyError.InvalidExchange);
+            }
+
+            var normalizedMicCode = micCode.Trim().ToUpperInvariant();
+
+            if (!exchangeLookupByMicCode.TryGetValue(normalizedMicCode, out string? name))
+            {
+                return Result<CompanyError>.Fail<StockExchange>(CompanyError.UnknownExchange);
+            }
+
+            return Result<CompanyError, StockExchange>.Ok(new StockExchange(
+                new StockExchangeInfo(micCode, name)));
+        }
     }
 }

@@ -92,6 +92,7 @@ namespace CompanyService.Core.Web
 
             services.AddConfigurationsValidator();
             services.AddConfigurationValidationStartupFilter();
+            services.AddStartupJobs();
             services.AddValidatableConfiguration<ServiceConfiguration>(configuration);
             services.AddValidatableConfiguration<WebAppConfiguration>(configuration);
 
