@@ -1,0 +1,21 @@
+# dependencies
+/node_modules
+
+# production build
+/dist
+
+# environment variables
+.env
+.env.*.local
+
+# Vite cache
+/.vite
+
+# local IDE/editor settings
+.vscode
+*.log
+*.tsbuildinfo
+
+# macOS / Linux / Windows junk files
+.DS_Store
+Thumbs.db

@@ -3,17 +3,20 @@
 
 # 📘 Company Service
 
-A .NET 9.0 backend project influenced by Hexagonal (Ports & Adapters) Architecture. 
+A full-stack demo built with **.NET 9.0** and **React + Vite**, following Hexagonal (Ports & Adapters) Architecture.
+
+---
 
 ## ✅ Highlights
 
 - Modular architecture: API, Domain, Application, Persistence
-- EF Core with SQL Server + Dockerized environment
-- JWT-based Machine-to-Machine Authentication
-- Serilog logging with Seq support
-- Pagination, Filtering, and Validation included
-- Ready-to-use Swagger UI
-- CI-friendly Docker setup
+- EF Core + SQL Server (Dockerized)
+- JWT-based Machine-to-Machine Auth
+- Serilog logging + Seq integration
+- React frontend with Axios + React Router
+- Pagination, Filtering, Form Validation
+- Docker + CI-friendly setup
+- Swagger UI for API testing
 
 ---
 
@@ -21,7 +24,7 @@ A .NET 9.0 backend project influenced by Hexagonal (Ports & Adapters) Architectu
 
 ```
 company-service/
-├── backend/                # Entire backend solution
+├── backend/                   # .NET backend solution
 │   ├── CompanyService.Api/
 │   ├── CompanyService.Application/
 │   ├── CompanyService.Core/
@@ -29,15 +32,19 @@ company-service/
 │   ├── CompanyService.Persistence/
 │   ├── CompanyService.Tests/
 │   └── ...
-├── frontend/               # (Not implemented yet)
-├── docker-compose.yml      # Docker setup for API + SQL + Seq
+├── frontend/                  # React + Vite frontend
+│   ├── features/
+│   ├── api/
+│   ├── hooks/
+│   └── ...
+├── docker-compose.yml         # Full-stack environment
 ```
 
 ---
 
-## 🔐 Auth
+## 🔐 Auth (Machine-to-Machine)
 
-Simplified JWT token endpoint with in-memory credentials (no DB check).
+Basic JWT flow with in-memory client credentials.
 
 **Test Clients:**
 
@@ -51,19 +58,32 @@ private static readonly Dictionary<string, string> _clients = new()
 
 ---
 
-## 🚀 Run with Docker
+## 🚀 Run the App
 
 ```bash
 docker-compose up --build -d
 ```
 
-- API: `http://localhost:5193`
+- Backend: `http://localhost:5193`
+- Frontend (Vite): `http://localhost:5173`
 - Swagger: `http://localhost:5193/swagger`
-- Seq logs: `http://localhost:5341`
+- Logs: `http://localhost:5341`
 
 ---
 
-## 🖪 Run Tests
+## 💻 Frontend Features
+
+- Login with client ID / secret
+- Company list (paginated)
+- Create / Edit company forms
+- Validation, conditional fields (ISIN only on create)
+- Protected routes
+
+> React + Vite + TypeScript + TailwindCSS
+
+---
+
+## 🧪 Run Backend Tests
 
 ```bash
 dotnet test
@@ -73,9 +93,8 @@ dotnet test
 
 ## 📜 License
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+Licensed under the [Apache 2.0 License](https://opensource.org/licenses/Apache-2.0)
 
 ---
 
-*This is a simplified demo for a coding assignment. Some areas like auth and error handling are intentionally kept minimal.*
-
+⚠️ _This project was built as part of a coding assignment. Some areas like authentication, client management, and validation were intentionally simplified._
