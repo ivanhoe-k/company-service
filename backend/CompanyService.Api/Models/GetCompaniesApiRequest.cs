@@ -4,16 +4,15 @@ using CompanyService.Domain.Models;
 namespace CompanyService.Api.Models
 {
     public sealed record GetCompaniesApiRequest(
+        SortOrder SortOrder, 
+        CompanyApiFilter? Filter,
+
         [Range(1, int.MaxValue, ErrorMessage = "PageNumber must be at least 1.")]
-        int PageNumber,
+        int PageNumber = 1,
 
         [Range(
             GetCompaniesRequest.MinPageSize,
-            GetCompaniesRequest.MaxPageSize, 
+            GetCompaniesRequest.MaxPageSize,
             ErrorMessage = "Page Size must be between {1} and {100}.")]
-        int PageSize,
-
-        SortOrder SortOrder, 
-        
-        CompanyApiFilter? Filter);
+        int PageSize = 5);
 }

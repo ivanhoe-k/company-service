@@ -41,3 +41,15 @@ services:
       - ACCEPT_EULA=Y
       - SEQ_ENABLEAUTHENTICATION=false
     restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5193/api
+    depends_on:
+      - company-service
+    restart: always

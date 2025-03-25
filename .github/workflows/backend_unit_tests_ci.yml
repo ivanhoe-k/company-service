@@ -7,7 +7,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Run Backend Unit Tests
+    name: Backend Unit Tests
     runs-on: ubuntu-latest
 
     defaults:
@@ -28,3 +28,4 @@ jobs:
         
       - name: Run backend unit tests
         run: dotnet test CompanyService.Tests/CompanyService.Tests.csproj --configuration Release --verbosity normal --filter FullyQualifiedName~UnitTests
+  

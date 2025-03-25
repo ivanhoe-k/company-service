@@ -1,14 +1,18 @@
 ﻿using System.Linq;
 using System.Text;
 using CompanyService.Core.Common;
+using CompanyService.Core.Configurations;
 using CompanyService.Core.Web.Configurations;
 using CompanyService.Core.Web.StartupJobs;
 using CompanyService.Core.Web.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Serilog;
 
 namespace CompanyService.Core.Web
 {
@@ -106,6 +110,36 @@ namespace CompanyService.Core.Web
                 });
 
             return services;
+        }
+
+        public static IServiceCollection AddCorsPolicyConfiguration(
+            this IServiceCollection services, IConfiguration configuration, string policyName)
+        {
+            configuration.ThrowIfNull();
+            policyName.ThrowIfNullOrWhiteSpace();
+
+            var corsConfiguration = configuration.GetConfiguration<CorsPolicyConfiguration>();
+
+            Log.Information("Allowed origins {AllowedOrigins}", corsConfiguration.AllowedOrigins);
+
+            services.AddCors(options =>
+                options.AddPolicy(
+                    policyName,
+                    policyBuilder => CondigureCorsPolicies(policyBuilder, corsConfiguration)));
+
+            return services;
+
+            void CondigureCorsPolicies(CorsPolicyBuilder policyBuilder, CorsPolicyConfiguration corsPolicyConfiguration)
+            {
+                policyBuilder.WithOrigins(corsPolicyConfiguration.AllowedOrigins.ToArray())
+                             .AllowAnyMethod()
+                             .AllowAnyHeader();
+
+                if (corsPolicyConfiguration.AllowCredentials)
+                {
+                    policyBuilder.AllowCredentials();
+                }
+            }
         }
     }
 }

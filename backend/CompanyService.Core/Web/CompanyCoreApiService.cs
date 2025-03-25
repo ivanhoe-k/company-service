@@ -95,6 +95,7 @@ namespace CompanyService.Core.Web
             services.AddStartupJobs();
             services.AddValidatableConfiguration<ServiceConfiguration>(configuration);
             services.AddValidatableConfiguration<WebAppConfiguration>(configuration);
+            services.AddCorsPolicyConfiguration(configuration, nameof(CompanyCoreApiService));
 
             services.AddHttpClient<HttpClient>(client =>
             {
@@ -140,6 +141,7 @@ namespace CompanyService.Core.Web
 
             app.UseSwaggerUI(appConfiguration);
             app.UseDefaultExceptionLogger();
+            app.UseCors(nameof(CompanyCoreApiService));
 
             app.MapControllers();
         }
